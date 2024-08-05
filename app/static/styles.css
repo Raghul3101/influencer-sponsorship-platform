@@ -1,0 +1,180 @@
+html{
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+/* DEFAULT */
+.body-bg{
+    background-image: linear-gradient(30deg, #050E13 30%, #163F56 50%, #378ea1 70%, #45b7d1 100%);
+}
+.body-bg2{
+    background-image: linear-gradient(90deg, #050E13, #163F56, #378ea1, #45b7d1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+.body-bg3{
+    background-color: #222831;
+}
+.bg-warning{
+    background-color: rgb(253, 253, 80) !important;
+}
+.bg-success{
+    background-color: rgb(52, 201, 52) !important;
+}
+.bg-danger{
+    background-color: rgb(255, 75, 69) !important;
+}
+.navbar{
+    font-weight: 500;
+    color: white !important;
+}
+.nav-link.active{
+    background-color: #f8f8f8;
+    /* background-color: #00FFF5; */
+    /* color: #222831 !important; */
+    border-radius: 8px;
+}
+.border-dark{
+    border-color: #222831 !important;
+}
+.text-dark{
+    color: #222831 !important;
+}
+
+/* LOGIN PAGE */
+
+#login-form{
+    padding: 50px;
+    border: 1px solid black;
+    border-radius: 18px;
+    background-color: white;
+}
+.form-control{
+    border: none;
+    border-bottom: 1px solid black;
+    border-radius: 0;
+    box-shadow: none !important;
+    padding-left: 6px;
+}
+#registerText{
+    width: fit-content;
+    margin-left: auto;
+    cursor: pointer;
+}
+#login-btn{
+    background-color: #102f41;
+    border-color: #163F56;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* END OF LOGIN PAGE */
+
+
+/* REGISTER PAGE */
+
+#register-body{
+    background-image: linear-gradient(30deg, #050E13 30%, #163F56 50%, #378ea1 70%, #45b7d1 100%);
+}
+.register-btn{
+    background-color: transparent;
+    font-size: 22px;
+    padding: 12px 20px;
+    transition: transform 0.25s ease, box-shadow 0.3s ease;
+}
+.register-btn:hover{
+    box-shadow: 0 4px 20px rgba(69, 183, 209, 0.8);
+    background-color: #050E13;
+    border-color: #050E13;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* END OF REGISTER PAGE */
+
+/* SPONSOR REGISTRATION */
+
+
+
+/* END OF SPONSOR REGISTRATION */
+
+
+/* INFLUENCER REGISTRATION */
+
+.sm-icon{
+    padding: 4px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: transparent;
+}
+.sm-icon:hover{
+    transform: scale(1.1);
+    border: 1px solid rgb(100, 100, 100);
+    box-shadow: 0 0 8px rgb(105, 105, 105);
+    border-radius: 8px;
+}
+.sm-icon.clicked{
+    transform: scale(1.1);
+    border: 1px solid rgb(104, 104, 104);
+    background-color: rgb(213, 255, 213);
+    border-radius: 8px;
+}
+
+/* END OF INFLUENCER REGISTRATION */
+
+
+/* INFLUENCER PROFILE */
+
+.pfp{
+    width: 150px;
+    height: 150px;
+    border: 1px solid black;
+    border-radius: 22px;
+}
+
+/* END OF INFLUENCER PROFILE */
+
+
+/* SPONSOR PROFILE */
+
+.btn-bottom {
+    position: fixed;
+    bottom: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+}
+
+/* END OF SPONSOR PROFILE */
+
+
+/* SPONSOR CAMPAIGN */
+
+.campaign-height-width{
+    height: 14rem;
+    width: 12rem;
+    cursor: pointer;
+    background-color: #f8f8f8;
+    color: #222831;
+    transition: transform 0.25s ease;
+}
+.campaign-height-width:hover{
+    transform: scale(1.05);
+    color: #222831 !important;
+}
+.btn-hover{
+    background-color: rgb(45, 219, 219);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.btn-hover:hover{
+    background-color: rgb(45, 219, 219);
+}
+.campaign-height-width:hover .btn-hover{
+    opacity: 1;
+    visibility: visible;
+}
+
+/* END OF SPONSOR CAMPAIGN */
