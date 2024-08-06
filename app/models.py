@@ -17,6 +17,7 @@ class Sponsor(db.Model):
     lname = db.Column(db.String(50), nullable=True)
     phone = db.Column(db.Integer, nullable=True)
     industry = db.Column(db.String(30), nullable=False)
+    campaigns = db.relationship('Campaign', backref='sponsor', lazy=True)
 
 
 class Campaign(db.Model):
@@ -28,7 +29,7 @@ class Campaign(db.Model):
     end_date = db.Column(db.Date, nullable=False)
     budget = db.Column(db.Float, nullable=False)
     visibility = db.Column(db.String(50), nullable=False)
-    sponsor_id = db.Column(db.Integer, db.ForeignKey('sponsor.id'))
+    sponsor_id = db.Column(db.Integer, db.ForeignKey('sponsor.id'), nullable=False)
 
 class Adrequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -39,4 +40,5 @@ class Adrequest(db.Model):
     requirements = db.Column(db.Text, nullable=False)
     payment_amount = db.Column(db.Float, nullable=False)
     requested_by = db.Column(db.String(20), nullable=False)
+    sent = db.Column(db.Boolean, nullable=True)
     accepted = db.Column(db.Boolean, nullable=False)

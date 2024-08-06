@@ -33,7 +33,7 @@
                 <p class="mb-0 text-dark">Campaign - {{ campaign.title }}</p>
                 <div>
                     <button class="btn p-1 ps-3 pe-3 rounded bg-warning" data-bs-toggle="modal" data-bs-target="#viewCampaignModal{{ campaign.id }}">View</button>
-                    <button class="btn p-1 ps-3 pe-3 rounded bg-success">Request</button>
+                    <button class="btn p-1 ps-3 pe-3 rounded bg-success" id="requestButton{{ campaign.id }}" data-bs-toggle="modal" data-bs-target="#requestCampaignModal{{ campaign.id }}">Request</button>
                 </div>
             </div>
 
@@ -61,12 +61,82 @@
                                     <p>End Date: {{ campaign.end_date }}</p>
                                 </div>
                                 <div class="mb-3">
-                                    <p>Sponsor ID: {{ campaign.sponsor_id }}</p>
+                                    <p>Sponsor: {{ campaign.sponsor.fname }}</p>
                                 </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade text-dark" id="requestCampaignModal{{ campaign.id }}" tabindex="-1" aria-labelledby="requestCampaignModalLabel{{ campaign.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="requestCampaignModalLabel{{ campaign.id }}">Request Campaign</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="requestCampaignForm{{ campaign.id }}" method="post">
+                                <input type="hidden" name="campaign_id" value="{{ campaign.id }}">
+                                <input type="hidden" name="sponsor_id" value="{{ campaign.sponsor_id }}">
+                                <div class="mb-3">
+                                    <label for="sponsor" class="form-label">Sponsor</label>
+                                    <input type="text" class="form-control" id="sponsor" name="sponsor" value="{{ campaign.sponsor.fname }}" disabled>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="message" class="form-label">Message</label>
+                                    <textarea class="form-control" id="message" name="message"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="requirements" class="form-label">Requirements<span class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="requirements" name="requirements" required></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="payment_amount" class="form-label">Payment Amount<span class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="payment_amount" name="payment_amount" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary" name="action" value="request">Request</button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         {% endfor %}
     </body>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('form[id^="requestCampaignForm"]').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault(); // Prevent the default form submission
+    
+                    const formData = new FormData(this);
+                    const campaignId = formData.get('campaign_id');
+                    const requestButton = document.getElementById(`requestButton${campaignId}`);
+    
+                    fetch('{{ url_for("influencerFind") }}', {
+                        method: 'POST',
+                        body: formData
+                    }).then(response => {
+                        if (response.ok) {
+                            // Change the button state
+                            requestButton.classList.remove('bg-success');
+                            requestButton.classList.add('bg-secondary');
+                            requestButton.textContent = 'Requested';
+                            requestButton.disabled = true;
+                            // Close the modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById(`requestCampaignModal${campaignId}`));
+                            modal.hide();
+                        } else {
+                            alert('Request failed. Please try again.');
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        alert('Request failed. Please try again.');
+                    });
+                });
+            });
+        });
+    </script>
+    
 </html>

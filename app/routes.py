@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, request, session, jsonify
 from app import app, db
-from app.models import Influencer, Sponsor, Campaign
+from app.models import Influencer, Sponsor, Campaign, Adrequest
 from datetime import datetime
 
 @app.route('/', methods=['GET', 'POST'])
@@ -68,10 +68,33 @@ def influencerProfile():
             return render_template('influencerProfile.html', influencer=influencer)
     return redirect(url_for('login'))
 
-@app.route('/influencer-find')
+@app.route('/influencer-find', methods=['GET', 'POST'])
 def influencerFind():
-    campaigns = Campaign.query.all()
-    return render_template('influencerFind.html', campaigns=campaigns)
+    if request.method == 'POST':
+        campaign_id = request.form.get('campaign_id')
+        sponsor_id = request.form.get('sponsor_id')
+        influencer_id = session.get('user_id')
+        message = request.form.get('message')
+        requirements = request.form.get('requirements')
+        payment_amount = float(request.form.get('payment_amount'))
+
+        new_request = Adrequest(
+                campaign_id=campaign_id,
+                influencer_id=influencer_id,
+                sponsor_id=sponsor_id,
+                message=message,
+                requirements=requirements,
+                payment_amount=payment_amount,
+                requested_by='influencer',
+                sent=True,
+                accepted=False
+        )
+        flash('Request Sent Successfully', 'success')
+        db.session.add(new_request)
+        db.session.commit()
+        return redirect(url_for('influencerFind'))
+
+    return render_template('influencerFind.html', campaigns=Campaign.query.join(Sponsor).all())
 
 
 # -------------------------------------SPONSOR---------------------------------------------
@@ -123,7 +146,8 @@ def sponsorCampaign():
         end_date_str = request.form.get('end_date')
         budget = float(request.form.get('budget'))
         visibility = request.form.get('visibility')
-        sponsor_id=1
+        sponsor_id = session.get('user_id')
+        
 
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
@@ -163,3 +187,4 @@ def sponsorCampaign():
 def view_campaigns():
     campaigns = Campaign.query.all()
     return render_template('view_campaign.html', campaigns=campaigns)
+
