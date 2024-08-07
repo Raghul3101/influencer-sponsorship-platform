@@ -122,7 +122,9 @@ def sponsorProfile():
     if user_id:
         sponsor = Sponsor.query.get(user_id)
         if sponsor:
-            return render_template('sponsorProfile.html', sponsor=sponsor)
+            requests = Adrequest.query.filter_by(requested_by="influencer", sponsor_id=user_id).all()
+            request_empty = len(requests)==0
+            return render_template('sponsorProfile.html', sponsor=sponsor, requests=requests, request_empty=request_empty)
     return redirect(url_for('login'))
 
 @app.route('/campaign', methods=['GET', 'POST'])

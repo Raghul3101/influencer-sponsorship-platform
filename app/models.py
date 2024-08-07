@@ -40,5 +40,5 @@ class Adrequest(db.Model):
     requirements = db.Column(db.Text, nullable=False)
     payment_amount = db.Column(db.Float, nullable=False)
     requested_by = db.Column(db.String(20), nullable=False)
-    sent = db.Column(db.Boolean, nullable=True)
-    accepted = db.Column(db.Boolean, nullable=False)
+    sent = db.Column(db.Boolean, nullable=False)
+    accepted = db.Column(db.Boolean, nullable=True)
