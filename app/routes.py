@@ -119,13 +119,36 @@ def registerSponsor():
 @app.route('/sponsor-profile', methods=['GET', 'POST'])
 def sponsorProfile():
     user_id = session.get('user_id')
-    if user_id:
-        sponsor = Sponsor.query.get(user_id)
-        if sponsor:
-            requests = Adrequest.query.filter_by(requested_by="influencer", sponsor_id=user_id).all()
-            request_empty = len(requests)==0
-            return render_template('sponsorProfile.html', sponsor=sponsor, requests=requests, request_empty=request_empty)
+    if not user_id:
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        request_id = request.form.get('request_id')
+        ad_request = Adrequest.query.get(request_id)
+
+        if ad_request:
+            if action == 'accept':
+                ad_request.accepted = True
+                db.session.commit()
+                flash('Request accepted successfully', 'success')
+            elif action == 'reject':
+                db.session.delete(ad_request)
+                db.session.commit()
+                flash('Request rejected successfully', 'success')
+
+        return redirect(url_for('sponsorProfile'))
+
+    sponsor = Sponsor.query.get(user_id)
+    if sponsor:
+        requests = Adrequest.query.filter_by(requested_by="influencer", sponsor_id=user_id, accepted=False).all()
+        actives = Adrequest.query.filter_by(sponsor_id=user_id, accepted=True).all()
+        request_empty = len(requests) == 0
+        active_empty = len(actives) == 0
+        return render_template('sponsorProfile.html', sponsor=sponsor, requests=requests, request_empty=request_empty, actives=actives, active_empty=active_empty)
+    
     return redirect(url_for('login'))
+
 
 @app.route('/campaign', methods=['GET', 'POST'])
 def sponsorCampaign():

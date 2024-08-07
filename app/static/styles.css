@@ -9,7 +9,7 @@ html{
 }
 .body-bg2{
     background-image: linear-gradient(90deg, #050E13, #163F56, #378ea1, #45b7d1);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4); */
 }
 .body-bg3{
     background-color: #222831;
@@ -26,6 +26,7 @@ html{
 .navbar{
     font-weight: 500;
     color: white !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 .nav-link.active{
     background-color: #f8f8f8;

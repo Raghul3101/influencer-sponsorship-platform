@@ -42,3 +42,5 @@ class Adrequest(db.Model):
     requested_by = db.Column(db.String(20), nullable=False)
     sent = db.Column(db.Boolean, nullable=False)
     accepted = db.Column(db.Boolean, nullable=True)
+    campaign = db.relationship('Campaign', backref='adrequest', lazy=True)
+    influencer = db.relationship('Influencer', backref='adrequest', lazy=True)

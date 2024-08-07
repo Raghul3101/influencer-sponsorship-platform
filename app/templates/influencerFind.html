@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Profile</title>
+        <title>Find</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
@@ -29,12 +29,16 @@
         </div>
 
         {% for campaign in campaigns %}
-            <div class="d-flex justify-content-between align-items-center bg-light border border-dark rounded-4 p-3 mt-4 ms-5 me-5">
+            <div class="d-flex justify-content-between align-items-center bg-light border border-light rounded-4 p-3 mt-4 ms-5 me-5">
                 <p class="mb-0 text-dark">Campaign - {{ campaign.title }}</p>
                 <div>
                     <button class="btn p-1 ps-3 pe-3 rounded bg-warning" data-bs-toggle="modal" data-bs-target="#viewCampaignModal{{ campaign.id }}">View</button>
-                    <button class="btn p-1 ps-3 pe-3 rounded bg-success" id="requestButton{{ campaign.id }}" data-bs-toggle="modal" data-bs-target="#requestCampaignModal{{ campaign.id }}">Request</button>
-                </div>
+                    {% if campaign.adrequest.sent %}
+                        <button class="btn p-1 ps-3 pe-3 rounded bg-secondary" id="requestButton{{ campaign.id }}" data-bs-toggle="modal" data-bs-target="#requestCampaignModal{{ campaign.id }}" disabled>Requested</button>
+                    {% else %}
+                        <button class="btn p-1 ps-3 pe-3 rounded bg-success" id="requestButton{{ campaign.id }}" data-bs-toggle="modal" data-bs-target="#requestCampaignModal{{ campaign.id }}">Request</button>
+                    {% endif %}
+                    </div>
             </div>
 
             <div class="modal fade text-dark" id="viewCampaignModal{{ campaign.id }}" tabindex="-1" aria-labelledby="viewCampaignModalLabel{{ campaign.id }}" aria-hidden="true">
