@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request, session, jsonify
+from flask import render_template,render_template_string, redirect, url_for, flash, request, session, jsonify
 from app import app, db
 from app.models import Influencer, Sponsor, Campaign, Adrequest
 from datetime import datetime
@@ -14,7 +14,10 @@ def login():
             if user and (user.password == password):
                 flash('Login successful', 'success')
                 session['user_id'] = user.id
-                return redirect(url_for('influencerProfile'))
+                if not user.flag:
+                    return redirect(url_for('influencerProfile'))
+                else:
+                    return render_template_string('<h1>You have been flagged by the Admin</h1>')
             else:
                 flash('Invalid username or password', 'danger')
         elif Sponsor.query.filter_by(username=username).first():
@@ -22,7 +25,10 @@ def login():
             if user and (user.password == password):
                 flash('Login successful', 'success')
                 session['user_id'] = user.id
-                return redirect(url_for('sponsorProfile'))
+                if not user.flag:
+                    return redirect(url_for('sponsorProfile'))
+                else:
+                    return render_template_string('<h1>You have been flagged by the Admin</h1>')
             else:
                 flash('Invalid username or password', 'danger')
         else:
@@ -30,13 +36,26 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/admin')
-def adminLogin():
-    return render_template('loginAdmin.html')
-
 @app.route('/register')
 def register():
     return render_template('register.html')
+
+@app.route('/toggle-flag', methods=['POST'])
+def toggle_flag():
+    entity_type = request.form.get('entity_type')
+    entity_id = request.form.get('entity_id')
+
+    if entity_type == 'influencer':
+        user = Influencer.query.get(entity_id)
+    elif entity_type == 'sponsor':
+        user = Sponsor.query.get(entity_id)
+    
+    if user:
+        user.flag = not user.flag  # Toggle the flag status
+        db.session.commit()
+    
+    return redirect(url_for('adminFind'))
+
 
 # -------------------------------INFLUENCER-----------------------------------------
 
@@ -62,10 +81,14 @@ def registerInfluencer():
 @app.route('/influencer-profile')
 def influencerProfile():
     user_id = session.get('user_id')
-    if user_id:
-        influencer = Influencer.query.get(user_id)
-        if influencer:
-            return render_template('influencerProfile.html', influencer=influencer)
+    if not user_id:
+        return redirect(url_for('login'))
+    
+    influencer = Influencer.query.get(user_id)
+    if influencer:
+        actives = Adrequest.query.filter_by(influencer_id=user_id, status='accepted').all()
+        active_empty = len(actives) == 0
+        return render_template('influencerProfile.html', influencer=influencer, actives=actives, active_empty=active_empty)
     return redirect(url_for('login'))
 
 @app.route('/influencer-find', methods=['GET', 'POST'])
@@ -87,7 +110,7 @@ def influencerFind():
                 payment_amount=payment_amount,
                 requested_by='influencer',
                 sent=True,
-                accepted=False
+                status='pending'
         )
         flash('Request Sent Successfully', 'success')
         db.session.add(new_request)
@@ -129,7 +152,7 @@ def sponsorProfile():
 
         if ad_request:
             if action == 'accept':
-                ad_request.accepted = True
+                ad_request.status = 'accepted'
                 db.session.commit()
                 flash('Request accepted successfully', 'success')
             elif action == 'reject':
@@ -141,8 +164,8 @@ def sponsorProfile():
 
     sponsor = Sponsor.query.get(user_id)
     if sponsor:
-        requests = Adrequest.query.filter_by(requested_by="influencer", sponsor_id=user_id, accepted=False).all()
-        actives = Adrequest.query.filter_by(sponsor_id=user_id, accepted=True).all()
+        requests = Adrequest.query.filter_by(requested_by="influencer", sponsor_id=user_id, status='pending').all()
+        actives = Adrequest.query.filter_by(sponsor_id=user_id, status='accepted').all()
         request_empty = len(requests) == 0
         active_empty = len(actives) == 0
         return render_template('sponsorProfile.html', sponsor=sponsor, requests=requests, request_empty=request_empty, actives=actives, active_empty=active_empty)
@@ -157,6 +180,7 @@ def sponsorCampaign():
             campaign_id = request.form.get('campaign_id')
             campaign = Campaign.query.get(campaign_id)
             if campaign:
+                Adrequest.query.filter_by(campaign_id=campaign_id).delete()
                 db.session.delete(campaign)
                 db.session.commit()
                 return jsonify({'status': 'success'}), 200
@@ -171,13 +195,30 @@ def sponsorCampaign():
         end_date_str = request.form.get('end_date')
         budget = float(request.form.get('budget'))
         visibility = request.form.get('visibility')
+        message = request.form.get('message')
+        requirements = request.form.get('requirements')
+        payment_amount = request.form.get('payment_amount')
+        influencer_id = request.form.get('influencer_id')
         sponsor_id = session.get('user_id')
         
 
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
 
-        if campaign_id:
+        if request.form.get('request'):
+            new_adrequest = Adrequest(
+                campaign_id=campaign_id,
+                message=message,
+                requirements=requirements,
+                payment_amount=payment_amount,
+                influencer_id=influencer_id,
+                status='pending'
+            )
+            db.session.add(new_adrequest)
+            db.session.commit()
+            return jsonify({'status': 'success'})
+
+        elif campaign_id:
             campaign = Campaign.query.get(campaign_id)
             if campaign:
                 campaign.title = title
@@ -189,6 +230,7 @@ def sponsorCampaign():
                 campaign.visibility = visibility
                 campaign.sponsor_id = sponsor_id
                 db.session.commit()
+
         else:  # Add new campaign
             new_campaign = Campaign(title=title, description=description, niche=niche, start_date=start_date, end_date=end_date, budget=budget, visibility=visibility, sponsor_id=sponsor_id)
             db.session.add(new_campaign)
@@ -200,13 +242,77 @@ def sponsorCampaign():
         sponsor = Sponsor.query.get(user_id)
         if sponsor:
             campaigns = Campaign.query.filter_by(sponsor_id=user_id).all()
+            influencers = Influencer.query.all()
             is_empty = len(campaigns) == 0
-            return render_template('sponsorCampaign.html', sponsor=sponsor, campaigns=campaigns, is_empty=is_empty)
+            return render_template('sponsorCampaign.html', sponsor=sponsor, campaigns=campaigns, is_empty=is_empty, influencers=influencers)
+    return redirect(url_for('login'))
+
+@app.route('/sponsor-find', methods=['GET', 'POST'])
+def sponsorFind():
+    influencers = Influencer.query.all()
+    return render_template('sponsorFind.html', influencers=influencers)
+
+
+# -------------------------------------ADMIN--------------------------------------------
+
+@app.route('/admin',  methods=['GET', 'POST'])
+def adminLogin():
+    if request.method == 'POST':
+        username = request.form.get('adminUser')
+        password = request.form.get('adminPassword')
+        if username == 'admin' and password == 'abc123':
+            return redirect(url_for('adminProfile'))
+    return render_template('loginAdmin.html')
+
+@app.route('/admin-profile', methods=['GET', 'POST'])
+def adminProfile():
+    ongoings = Adrequest.query.filter_by(status='accepted').all()
+    return render_template('adminProfile.html', ongoings=ongoings)
+
+@app.route('/admin-find', methods=['GET', 'POST'])
+def adminFind():
+    campaigns = Campaign.query.all()
+    influencers = Influencer.query.all()
+    sponsors = Sponsor.query.all()
+
+    if request.method == 'POST':
+        entity_type = request.form.get('entity_type')
+        entity_id = request.form.get('entity_id')
+
+        if entity_type == 'influencer':
+            influencer = Influencer.query.get(entity_id)
+            if influencer:
+                influencer.flag = True
+                db.session.commit()
+                flash('Influencer flagged successfully', 'success')
+        elif entity_type == 'sponsor':
+            sponsor = Sponsor.query.get(entity_id)
+            if sponsor:
+                sponsor.flag = True
+                db.session.commit()
+                flash('Sponsor flagged successfully', 'success')
+        
+        return redirect(url_for('adminFind'))
+
+    return render_template('adminFind.html', campaigns=campaigns, influencers=influencers, sponsors=sponsors)
+
+
+@app.route('/logout-admin')
+def adminLogout():
+    session.pop('user_id', None)
+    flash('You have been logged out successfully.', 'success')
+    return redirect(url_for('adminLogin'))
+
+
+# ----------------------------------------COMMON-------------------------------------------------
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    flash('You have been logged out successfully.', 'success')
     return redirect(url_for('login'))
 
 
-
-
+# -----------------------------------TESTING-----------------------------------------------------
 
 @app.route('/view_campaigns')
 def view_campaigns():

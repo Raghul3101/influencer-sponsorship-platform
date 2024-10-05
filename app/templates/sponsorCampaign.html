@@ -15,10 +15,10 @@
               <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav ms-auto">
                   <a class="nav-link" href="{{ url_for('sponsorProfile') }}">Profile</a>
-                  <a class="nav-link active" aria-current="page" href="#">Campaigns</a>
-                  <a class="nav-link" href="#">Find</a>
+                  <a class="nav-link active" aria-current="page" href="{{ url_for('sponsorCampaign') }}">Campaigns</a>
+                  <a class="nav-link" href="{{ url_for('sponsorFind') }}">Find</a>
                   <a class="nav-link" href="#">Stats</a>
-                  <a class="nav-link" href="#">Logout</a>
+                  <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                 </div>
               </div>
             </div>
@@ -34,56 +34,85 @@
         </section>
   
       <!-- Modal -->
-      <div class="modal fade text-dark" id="addCampaignModal" tabindex="-1" aria-labelledby="addCampaignModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-scrollable">
-              <div class="modal-content">
-                  <div class="modal-header">
-                      <h5 class="modal-title" id="addCampaignModalLabel">Add Campaign</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                      <form id="addCampaignForm" method="post">
-                          <input type="hidden" id="campaign_id" name="campaign_id">
-                          <div class="mb-3">
-                              <label for="title" class="form-label">Title<span class="text-danger">*</span></label>
-                              <input type="text" class="form-control" id="title" name="title" required>
-                          </div>
-                          <div class="mb-3">
-                              <label for="description" class="form-label">Description<span class="text-danger">*</span></label>
-                              <textarea class="form-control" id="description" name="description" required></textarea>
-                          </div>
-                          <div class="mb-3">
-                              <label for="niche" class="form-label">Niche</label>
-                              <input type="text" class="form-control" id="niche" name="niche">
-                          </div>
-                          <div class="mb-3">
-                              <label for="start_date" class="form-label">Start Date<span class="text-danger">*</span></label>
-                              <input type="date" class="form-control" id="start_date" name="start_date" required>
-                          </div>
-                          <div class="mb-3">
-                              <label for="end_date" class="form-label">End Date<span class="text-danger">*</span></label>
-                              <input type="date" class="form-control" id="end_date" name="end_date" required>
-                          </div>
-                          <div class="mb-3">
+    <div class="modal fade text-dark" id="addCampaignModal" tabindex="-1" aria-labelledby="addCampaignModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCampaignModalLabel">Add Campaign</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCampaignForm" method="post">
+                        <input type="hidden" id="campaign_id" name="campaign_id">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title<span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description<span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="description" name="description" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="niche" class="form-label">Niche</label>
+                            <input type="text" class="form-control" id="niche" name="niche">
+                        </div>
+                        <div class="mb-3">
+                            <label for="start_date" class="form-label">Start Date<span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="end_date" class="form-label">End Date<span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" required>
+                        </div>
+                        <div class="mb-3">
                             <label for="budget" class="form-label">Budget</label>
                             <input type="number" step="0.01" class="form-control" id="budget" name="budget" required>
-                          </div>
-                          <div class="mb-3">
+                        </div>
+                        <div class="mb-3">
                             <label for="visibility" class="form-label">Visibility<span class="text-danger">*</span></label>
                             <select class="form-select" id="visibility" name="visibility" required>
                                 <option value="" disabled selected>Select</option>
                                 <option value="Public">Public</option>
                                 <option value="Private">Private</option>
                             </select>
-                          </div>
-                          <button type="submit" class="btn btn-primary" id="addCampaignBtn">Add</button>
-                          <button type="button" class="btn text-light bg-danger d-none" id="deleteCampaignBtn">Delete</button>
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                      </form>
-                  </div>
-              </div>
-          </div>
-      </div>
+                        </div>
+
+                        <!-- New Fields for View Mode -->
+                        <div class="mb-3 d-none" id="messageField">
+                            <label for="message" class="form-label">Message</label>
+                            <input type="text" class="form-control" id="message" name="message">
+                        </div>
+                        <div class="mb-3 d-none" id="requirementField">
+                            <label for="requirements" class="form-label">Requirements</label>
+                            <input type="text" class="form-control" id="requirements" name="requirements">
+                        </div>
+                        <div class="mb-3 d-none" id="paymentField">
+                            <label for="payment_amount" class="form-label">Payment Amount</label>
+                            <input type="number" step="0.01" class="form-control" id="payment_amount" name="payment_amount">
+                        </div>
+                        <div class="mb-3" id="adrequestAssigned">
+                            <label for="influencer_assigned" class="form-label">Influencer Assigned: </label>
+                            <span id="influencer_assigned_text" class="me-2">Not assigned</span>
+                            <select id="influencerSelect" class="form-select">
+                                <option value="" selected>Select an influencer</option>
+                                {% for influencer in influencers %}
+                                    <option value="{{ influencer.id }}">{{ influencer.fname }}</option>
+                                {% endfor %}
+                            </select>
+                            <input type="hidden" id="influencer_id" name="influencer_id">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="addCampaignBtn">Add</button>
+                        <button type="button" class="btn text-light bg-danger d-none" id="deleteCampaignBtn">Delete</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <input type="hidden" id="request" name="request">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
       <section class="p-2 ps-4 d-flex gap-4 h-auto">
         {% if is_empty %}
@@ -93,7 +122,17 @@
                 <div class="d-flex flex-column justify-content-between align-items-center campaign-height-width border border-light rounded-5 p-3 pt-4 mt-4 cursor-pointer">
                     <p class="mb-0 fs-4 me-auto">{{ campaign.title }}</p>
                     <div>
-                        <button class="btn ps-3 pe-3 rounded btn-hover">View</button>
+                        <button class="btn ps-3 pe-3 rounded btn-hover" data-bs-toggle="modal" data-bs-target="#addCampaignModal" 
+                                data-id="{{ campaign.id }}"
+                                data-title="{{ campaign.title }}"
+                                data-description="{{ campaign.description }}"
+                                data-niche="{{ campaign.niche }}"
+                                data-start_date="{{ campaign.start_date }}"
+                                data-end_date="{{ campaign.end_date }}"
+                                data-budget="{{ campaign.budget }}"
+                                data-visibility="{{ campaign.visibility }}"
+                                data-view="true">View</button>
+
                         <button class="btn ps-3 pe-3 rounded btn-hover" data-bs-toggle="modal" data-bs-target="#addCampaignModal" 
                                 data-id="{{ campaign.id }}"
                                 data-title="{{ campaign.title }}"
@@ -113,12 +152,13 @@
     <script>
         var modal = document.getElementById('addCampaignModal');
 
-        // When the modal is shown, populate the form fields if edit button is clicked
+        // When the modal is shown, populate the form fields if edit or view button is clicked
         modal.addEventListener('show.bs.modal', function (event) {
             var button = event.relatedTarget; // Button that triggered the modal
             var form = document.getElementById('addCampaignForm');
             var campaignIdInput = document.getElementById('campaign_id');
             var deleteBtn = document.getElementById('deleteCampaignBtn');
+            var isView = button.getAttribute('data-view') === 'true';
 
             if (button && button.hasAttribute('data-id')) {
                 // Populate the form with the data attributes
@@ -131,40 +171,120 @@
                 form.budget.value = button.getAttribute('data-budget');
                 form.visibility.value = button.getAttribute('data-visibility');
 
-                // Change modal title to 'Edit Campaign'
-                document.getElementById('addCampaignModalLabel').innerText = 'Edit Campaign';
-                document.getElementById('addCampaignBtn').innerText = 'Update';
-                deleteBtn.classList.remove('d-none');
+                // Handle ad request fields and influencer assigned status
+                var messageInput = document.getElementById('message');
+                var requirementsInput = document.getElementById('requirements');
+                var paymentAmountInput = document.getElementById('payment_amount');
+                var influencerAssignedText = document.getElementById('influencer_assigned_text');
+                var messageField = document.getElementById('messageField');
+                var requirementField = document.getElementById('requirementField');
+                var paymentField = document.getElementById('paymentField');
+                var adrequestAssigned = document.getElementById('adrequestAssigned');
+
+                if (isView) {
+                    // Populate ad request fields if they exist
+                    messageInput.value = button.getAttribute('data-message') || '';
+                    requirementsInput.value = button.getAttribute('data-requirements') || '';
+                    paymentAmountInput.value = button.getAttribute('data-payment_amount') || '';
+
+                    // Update influencer assigned text
+                    var influencerAssigned = button.getAttribute('data-influencer_assigned') === 'true';
+                    influencerAssignedText.innerText = influencerAssigned ? 'Assigned' : 'Not assigned';
+
+                    // Show ad request fields and influencer assigned status
+                    messageField.classList.remove('d-none');
+                    requirementField.classList.remove('d-none');
+                    paymentField.classList.remove('d-none');
+                    adrequestAssigned.classList.remove('d-none');
+
+                    // Change modal title and button text for view mode
+                    document.getElementById('addCampaignModalLabel').innerText = 'View Campaign';
+                    document.getElementById('addCampaignBtn').innerText = 'Request';
+                    deleteBtn.classList.add('d-none');
+
+                    // Disable all form inputs
+                    form.querySelectorAll('input, textarea, select').forEach(function (element) {
+                        element.disabled = true;
+                    });
+                    messageInput.disabled = false;
+                    requirementsInput.disabled = false;
+                    paymentAmountInput.disabled = false;
+                    document.getElementById('influencerSelect').disabled=false; 
+
+
+                } else {
+                    // Hide ad request fields and influencer assigned status for edit mode
+                    messageField.classList.add('d-none');
+                    requirementField.classList.add('d-none');
+                    paymentField.classList.add('d-none');
+                    adrequestAssigned.classList.add('d-none');
+
+                    // Change modal title and button text for edit mode
+                    document.getElementById('addCampaignModalLabel').innerText = 'Edit Campaign';
+                    document.getElementById('addCampaignBtn').innerText = 'Update';
+                    deleteBtn.classList.remove('d-none');
+
+                    // Enable all form inputs
+                    form.querySelectorAll('input, textarea, select').forEach(function (element) {
+                        element.disabled = false;
+                    });
+                }
             } else {
                 // Clear the form fields
                 form.reset();
-
+                var messageField = document.getElementById('messageField');
+                var requirementField = document.getElementById('requirementField');
+                var paymentField = document.getElementById('paymentField');
+                var adrequestAssigned = document.getElementById('adrequestAssigned');
                 // Change modal title to 'Add Campaign'
                 document.getElementById('addCampaignModalLabel').innerText = 'Add Campaign';
                 document.getElementById('addCampaignBtn').innerText = 'Add';
                 deleteBtn.classList.add('d-none');
+                messageField.classList.add('d-none');
+                requirementField.classList.add('d-none');
+                paymentField.classList.add('d-none');
+                adrequestAssigned.classList.add('d-none');
+                form.querySelectorAll('input, textarea, select').forEach(function (element) {
+                    element.disabled = false;
+                });
+
             }
         });
+
         document.getElementById('deleteCampaignBtn').addEventListener('click', function () {
             var campaignId = document.getElementById('campaign_id').value;
-    
+
             if (campaignId && confirm('Are you sure you want to delete this campaign?')) {
                 var form = document.getElementById('addCampaignForm');
                 var formData = new FormData(form);
                 formData.append('delete', true);
-    
+
                 fetch('/campaign', {
                     method: 'POST',
                     body: formData
                 }).then(response => response.json())
-                  .then(data => {
-                      if (data.status === 'success') {
-                          location.reload(); // Reload the page to see the updated campaigns
-                      } else {
-                          alert('Error deleting campaign');
-                      }
-                  });
+                .then(data => {
+                    if (data.status === 'success') {
+                        location.reload(); // Reload the page to see the updated campaigns
+                    } else {
+                        alert('Error deleting campaign');
+                    }
+                });
             }
         });
+
+        document.getElementById('influencerSelect').addEventListener('change', function () {
+            var selectedOption = this.options[this.selectedIndex];
+            var id = selectedOption.value;
+            var name = selectedOption.textContent;
+            document.getElementById('influencer_id').value = id;
+            document.getElementById('influencer_assigned_text').textContent = name;
+        });
+
+        document.getElementById('addCampaignBtn').addEventListener('click', function () {
+            var isRequest = this.innerText === 'Request';
+            document.getElementById('request').value = isRequest ? 'true' : '';
+        });
+        
     </script>
 </html>

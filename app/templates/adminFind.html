@@ -11,13 +11,13 @@
     <body class="h-100 body-bg2 text-light">
         <nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top body-bg2 text-light">
             <div class="container-fluid">
-              <a class="navbar-brand text-light" href="#">Influencer Dashboard</a>
+              <a class="navbar-brand text-light" href="#">Admin Dashboard</a>
               <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav ms-auto">
-                  <a class="nav-link" href="{{ url_for('influencerProfile') }}">Profile</a>
-                  <a class="nav-link active"  aria-current="page" href="{{ url_for('influencerFind') }}">Find</a>
+                  <a class="nav-link" href="{{ url_for('adminProfile') }}">Info</a>
+                  <a class="nav-link active"  aria-current="page" href="{{ url_for('adminFind') }}">Find</a>
                   <a class="nav-link" href="#">Stats</a>
-                  <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                  <a class="nav-link" href="{{ url_for('adminLogout') }}">Logout</a>
                 </div>
               </div>
             </div>
@@ -28,17 +28,14 @@
             <button class="btn btn-outline-success" type="submit">Search</button>
         </div>
 
+        <h3>Campaigns</h3>
         {% for campaign in campaigns %}
             <div class="d-flex justify-content-between align-items-center bg-light border border-light rounded-4 p-3 mt-4 ms-5 me-5">
                 <p class="mb-0 text-dark">Campaign - {{ campaign.title }}</p>
                 <div>
                     <button class="btn p-1 ps-3 pe-3 rounded bg-warning" data-bs-toggle="modal" data-bs-target="#viewCampaignModal{{ campaign.id }}">View</button>
-                    {% if campaign.adrequest.sent %}
-                        <button class="btn p-1 ps-3 pe-3 rounded bg-secondary" id="requestButton{{ campaign.id }}" data-bs-toggle="modal" data-bs-target="#requestCampaignModal{{ campaign.id }}" disabled>Requested</button>
-                    {% else %}
-                        <button class="btn p-1 ps-3 pe-3 rounded bg-success" id="requestButton{{ campaign.id }}" data-bs-toggle="modal" data-bs-target="#requestCampaignModal{{ campaign.id }}">Request</button>
-                    {% endif %}
-                </div>
+                    <button class="btn p-1 ps-3 pe-3 rounded bg-success" id="flagButton{{ campaign.id }}" data-bs-toggle="modal" data-bs-target="#glagCampaignModal{{ campaign.id }}">Flag</button>
+                    </div>
             </div>
 
             <div class="modal fade text-dark" id="viewCampaignModal{{ campaign.id }}" tabindex="-1" aria-labelledby="viewCampaignModalLabel{{ campaign.id }}" aria-hidden="true">
@@ -71,41 +68,92 @@
                     </div>
                 </div>
             </div>
+        {% endfor %}
 
-            <div class="modal fade text-dark" id="requestCampaignModal{{ campaign.id }}" tabindex="-1" aria-labelledby="requestCampaignModalLabel{{ campaign.id }}" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-scrollable">
+        <h3>Influencers</h3>
+        {% for influencer in influencers %}
+            <div class="d-flex justify-content-between align-items-center bg-light border border-light rounded-4 p-3 mt-4 ms-5 me-5">
+                <p class="mb-0 text-dark">Influencer - {{ influencer.username }}</p>
+                <div>
+                <button class="btn p-1 ps-3 pe-3 rounded bg-warning" data-bs-toggle="modal" data-bs-target="#viewInfluencerModal{{ influencer.id }}">View</button>
+                    <form method="POST" action="{{ url_for('toggle_flag') }}" class="d-inline">
+                        <input type="hidden" name="entity_type" value="influencer">
+                        <input type="hidden" name="entity_id" value="{{ influencer.id }}">
+                        <button type="submit" class="btn p-1 ps-3 pe-3 rounded {{ 'bg-secondary' if influencer.flag else 'bg-success' }}">
+                            {{ 'Flagged' if influencer.flag else 'Flag' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal fade text-dark" id="viewInfluencerModal{{ influencer.id }}" tabindex="-1" aria-labelledby="viewInfluencerModalLabel{{ influencer.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable height-auto">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="requestCampaignModalLabel{{ campaign.id }}">Request Campaign</h5>
+                            <h5 class="modal-title" id="viewInfluencerModalLabel">Campaign</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <form id="requestCampaignForm{{ campaign.id }}" method="post">
-                                <input type="hidden" name="campaign_id" value="{{ campaign.id }}">
-                                <input type="hidden" name="sponsor_id" value="{{ campaign.sponsor_id }}">
-                                <div class="mb-3">
-                                    <label for="sponsor" class="form-label">Sponsor</label>
-                                    <input type="text" class="form-control" id="sponsor" name="sponsor" value="{{ campaign.sponsor.fname }}" disabled>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="message" class="form-label">Message</label>
-                                    <textarea class="form-control" id="message" name="message"></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="requirements" class="form-label">Requirements<span class="text-danger">*</span></label>
-                                    <textarea class="form-control" id="requirements" name="requirements" required></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="payment_amount" class="form-label">Payment Amount<span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="payment_amount" name="payment_amount" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary" name="action" value="request">Request</button>
-                            </form>
+                            <div class="mb-3">
+                                <p>First Name: {{ influencer.fname }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <p>Last Name: {{ influencer.lname }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <p>Phone: +91 {{ influencer.phone }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <p>Platform: {{ influencer.platform }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         {% endfor %}
+
+        <h3>Sponsors</h3>
+        {% for sponsor in sponsors %}
+            <div class="d-flex justify-content-between align-items-center bg-light border border-light rounded-4 p-3 mt-4 ms-5 me-5">
+                <p class="mb-0 text-dark">Sponsor - {{ sponsor.username }}</p>
+                <div>
+                    <button class="btn p-1 ps-3 pe-3 rounded bg-warning" data-bs-toggle="modal" data-bs-target="#viewSponsorModal{{ sponsor.id }}">View</button>
+                    <form method="POST" action="{{ url_for('toggle_flag') }}" class="d-inline">
+                        <input type="hidden" name="entity_type" value="sponsor">
+                        <input type="hidden" name="entity_id" value="{{ sponsor.id }}">
+                        <button type="submit" class="btn p-1 ps-3 pe-3 rounded {{ 'bg-secondary' if sponsor.flag else 'bg-success' }}">
+                            {{ 'Flagged' if sponsor.flag else 'Flag' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="modal fade text-dark" id="viewSponsorModal{{ sponsor.id }}" tabindex="-1" aria-labelledby="viewSponsorModalLabel{{ sponsor.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable height-auto">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="viewSponsorModalLabel">Campaign</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <p>First Name: {{ sponsor.fname }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <p>Last Name: {{ sponsor.lname }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <p>Phone: +91 {{ sponsor.phone }}</p>
+                            </div>
+                            <div class="mb-3">
+                                <p>Industry: {{ sponsor.indstry }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+            
     </body>
 
     <script>

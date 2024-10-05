@@ -10,16 +10,15 @@
     </head>
     <body class="h-100 d-flex align-items-center body-bg">
         <div class="container-fluid">
-            <form id="login-form" class="mx-auto w-25">
+            <form id="login-form" class="mx-auto w-25" method="post">
                 <h4 class="text-center">Admin Login</h4>
                 <div class="mb-3 mt-5">
                   <label for="exampleInputEmail1" class="form-label mb-0">User Name</label>
-                  <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                  <input type="text" class="form-control" id="adminUser" aria-describedby="emailHelp" name="adminUser">
                 </div>
                 <div class="mb-3">
                   <label for="exampleInputPassword1" class="form-label mb-0">Password</label>
-                  <input type="password" class="form-control" id="exampleInputPassword1">
-                  <!-- <div id="registerText" class="form-text" onclick="redirectToRegister()">Register</div> -->
+                  <input type="password" class="form-control" id="adminPassword" name="adminPassword">
                 </div>
                 <div class="d-flex justify-content-center">
                     <button type="submit" id="login-btn" class="btn btn-primary">Login</button>
@@ -27,10 +26,4 @@
               </form>
             </div>
     </body>
-
-    <!-- <script>
-      function redirectToRegister() {
-        window.location.href = "{{ url_for('register') }}";
-      }
-    </script> -->
 </html>
